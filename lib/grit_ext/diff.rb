@@ -15,7 +15,7 @@ module Grit
       else
         lines = @diff.lines.to_a
         path = GritExt.encode! lines.shift(2).join
-        body = GritExt.encode! lines.join
+        body = GritExt.encode! (lines.map! {|item| item.to_s.encode('UTF-8', {:invalid => :replace, :undef => :replace, :replace => '?'})}).join
         @diff = path + body
       end
     end
