@@ -90,34 +90,33 @@ module Grit
       def construct_status
         @files = ls_files
 
-        Dir.chdir(@base.working_dir) do
-          # find untracked in working dir
-          Dir.glob('**/*') do |file|
-            if !@files[file]
-              @files[file] = {:path => file, :untracked => true} if !File.directory?(file)
-            end
+        # find untracked in working dir
+        Dir.glob(File.join(@base.working_dir, '**/*')) do |full_file|
+          file = full_file.gsub "#{@base.working_dir}/", ""
+          if !@files[file]
+            @files[file] = {:path => file, :untracked => true} if !File.directory?(file)
           end
+        end
 
-          # find modified in tree
-         diff_files.each do |path, data|
-            @files[path] ? @files[path].merge!(data) : @files[path] = data
-          end
+        # find modified in tree
+        diff_files.each do |path, data|
+          @files[path] ? @files[path].merge!(data) : @files[path] = data
+        end
 
-          # find added but not committed - new files
-          diff_index('HEAD').each do |path, data|
-            @files[path] ? @files[path].merge!(data) : @files[path] = data
-          end
+        # find added but not committed - new files
+        diff_index('HEAD').each do |path, data|
+          @files[path] ? @files[path].merge!(data) : @files[path] = data
+        end
 
-          @files.each do |k, file_hash|
-            @files[k] = StatusFile.new(@base, file_hash)
-          end
+        @files.each do |k, file_hash|
+          @files[k] = StatusFile.new(@base, file_hash)
         end
       end
 
       # compares the index and the working directory
       def diff_files
         hsh = {}
-        @base.git.diff_files.split("\n").each do |line|
+        @base.git.diff_files(chdir: @base.working_dir).split("\n").each do |line|
           (info, file) = line.split("\t")
           (mode_src, mode_dest, sha_src, sha_dest, type) = info.split
           hsh[file] = {:path => file, :mode_file => mode_src.to_s[1, 7], :mode_index => mode_dest,
@@ -129,7 +128,7 @@ module Grit
       # compares the index and the repository
       def diff_index(treeish)
         hsh = {}
-        @base.git.diff_index({}, treeish).split("\n").each do |line|
+        @base.git.diff_index({chdir: @base.working_dir}, treeish).split("\n").each do |line|
           (info, file) = line.split("\t")
           (mode_src, mode_dest, sha_src, sha_dest, type) = info.split
           hsh[file] = {:path => file, :mode_repo => mode_src.to_s[1, 7], :mode_index => mode_dest,
@@ -140,7 +139,7 @@ module Grit
 
       def ls_files
         hsh = {}
-        lines = @base.git.ls_files({:stage => true})
+        lines = @base.git.ls_files({chdir: @base.working_dir, :stage => true})
         lines.split("\n").each do |line|
           (info, file) = line.split("\t")
           (mode, sha, stage) = info.split

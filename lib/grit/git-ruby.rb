@@ -116,27 +116,28 @@ module Grit
     def refs(options, prefix)
       refs = []
       already = {}
-      Dir.chdir(@git_dir) do
-        files = Dir.glob(prefix + '/**/*')
-        files.each do |ref|
-          next if !File.file?(ref)
-          id = File.read(ref).chomp
-          name = ref.sub("#{prefix}/", '')
-          if !already[name]
-            refs << "#{name} #{id}"
-            already[name] = true
-          end
-        end
+      orig_prefix = prefix
+      prefix = File.join @git_dir, prefix
 
-        if File.file?('packed-refs')
-          File.readlines('packed-refs').each do |line|
-            if m = /^(\w{40}) (.*?)$/.match(line)
-              next if !Regexp.new('^' + prefix).match(m[2])
-              name = m[2].sub("#{prefix}/", '')
-              if !already[name]
-                refs << "#{name} #{m[1]}"
-                already[name] = true
-              end
+      files = Dir.glob(prefix + '/**/*')
+      files.each do |ref|
+        next if !File.file?(ref)
+        id = File.read(ref).chomp
+        name = ref.sub("#{prefix}/", '')
+        if !already[name]
+          refs << "#{name} #{id}"
+          already[name] = true
+        end
+      end
+      packed = File.join(prefix, 'packed-refs')
+      if File.file?(packed)
+        File.readlines(packed).each do |line|
+          if m = /^(\w{40}) (.*?)$/.match(line)
+            next if !Regexp.new('^' + orig_prefix).match(m[2])
+            name = m[2].sub("#{prefix}/", '')
+            if !already[name]
+              refs << "#{name} #{m[1]}"
+              already[name] = true
             end
           end
         end
