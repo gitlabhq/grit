@@ -208,6 +208,7 @@ module Grit
     end
 
     def self.quick_diff(repo, a, b = nil, paths = [], options = {})
+      options[:name_status] = true
       if b.is_a?(Array)
         paths = b
         b     = nil
@@ -215,7 +216,6 @@ module Grit
       paths.unshift("--") unless paths.empty?
       paths.unshift(b)    unless b.nil?
       paths.unshift(a)
-      paths.insert(0, "--name-status")
       text    = repo.git.native(:diff, options, *paths)
       Diff.list_from_quick_string(repo, text)
     end
