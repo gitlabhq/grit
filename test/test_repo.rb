@@ -383,6 +383,11 @@ class TestRepo < Test::Unit::TestCase
     @r.log('master', 'file.rb', :max_count => 1)
   end
 
+  def test_log_for_all_commits
+    Git.any_instance.expects(:log).with({:pretty => 'raw', :all => true, :max_count => 1}).returns(fixture('rev_list_all'))
+    @r.log(nil, nil, :max_count => 1)
+  end
+
   # commit_deltas_from
 
   def test_commit_deltas_from_nothing_new

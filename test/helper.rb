@@ -33,3 +33,7 @@ end
 def jruby?
   defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
 end
+
+def macosx?
+  defined?(RUBY_PLATFORM) && RUBY_PLATFORM.downcase =~ /darwin/
+end

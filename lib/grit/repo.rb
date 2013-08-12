@@ -549,12 +549,23 @@ module Grit
     end
 
     # The commit log for a treeish
+    #   +ref+ is the ref from which to begin (SHA1 or name) or nil for --all
+    #   +path+ is the file path on which to restrict the commits
+    #   +options+ is a Hash of optional arguments to git
+    #     :max_count is the maximum number of commits to fetch
+    #     :skip is the number of commits to skip
     #
     # Returns Grit::Commit[]
-    def log(commit = 'master', path = nil, options = {})
+    def log(ref = 'master', path = nil, options = {})
       default_options = {:pretty => "raw"}
       actual_options  = default_options.merge(options)
-      arg = path ? [commit, '--', path] : [commit]
+      arg = []
+      if ref
+        arg.push(ref)
+      else
+        actual_options[:all] = true
+      end
+      arg.push '--', path if path
       commits = self.git.log(actual_options, *arg)
       Commit.list_from_string(self, commits)
     end

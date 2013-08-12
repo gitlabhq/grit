@@ -50,8 +50,12 @@ class TestGit < Test::Unit::TestCase
 
   def test_raises_if_too_many_bytes
     fail if jruby?
-    assert_raises Grit::Git::GitTimeout do
-      @git.sh "yes | head -#{Grit::Git.git_max_size + 1}"
+    if macosx?
+      skip('yes process is left on Mac OSX - skipped')
+    else
+      assert_raises Grit::Git::GitTimeout do
+        @git.sh "yes | head -#{Grit::Git.git_max_size + 1}"
+      end
     end
   end
 
