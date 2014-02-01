@@ -291,9 +291,6 @@ module Grit
     # Optionally yields to the block an IO object attached to the child
     # process's STDIN.
     #
-    # Examples
-    #   git.native(:rev_list, {:max_count => 10, :header => true}, "master")
-    #
     # Returns a String with all output written to the child process's stdout
     #   when the :process_info option is not set.
     # Returns a [exitstatus, out, err] tuple when the :process_info option is
@@ -364,9 +361,6 @@ module Grit
 
     # Methods not defined by a library implementation execute the git command
     # using #native, passing the method name as the git command name.
-    #
-    # Examples:
-    #   git.rev_list({:max_count => 10, :header => true}, "master")
     def method_missing(cmd, options={}, *args, &block)
       native(cmd, options, *args, &block)
     end
