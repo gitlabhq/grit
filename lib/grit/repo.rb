@@ -718,11 +718,13 @@ module Grit
       context_arg = '-C ' + contextlines.to_s
       result = git.native(:grep, {pipeline: false}, '-n', '-E', '-i', '-z', '--heading', '--break', context_arg, searchtext, branch).encode('UTF-8', invalid: :replace, undef: :replace, replace: '')
       greps = []
+      result.gsub!(/(^Binary file (.+) matches$)/, "\n\\1\n")
+      result.strip!
       filematches = result.split("\n\n")
       filematches.each do |filematch|
         binary = false
         file = ''
-        matches = filematch.split("--\n")
+        matches = filematch.strip.split("--\n")
         matches.each_with_index do |match, i|
           content = []
           startline = 0
@@ -733,10 +735,10 @@ module Grit
             file = text[/^Binary file (.+) matches$/]
             if file
               binary = true
-            else
-              text.slice! /^#{branch}:/
-              file = text
+              text = $1
             end
+            text.slice! /^#{branch}:/
+            file = text
           end
           lines.each_with_index do |line, j|
             line.chomp!
