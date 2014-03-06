@@ -418,4 +418,21 @@ class TestRepo < Test::Unit::TestCase
     assert_equal 'test/test_repo.rb', res.first.filename
     assert_equal '  def test_select_existing_objects', res.first.content[1]
   end
+
+  def test_grep_binary
+    res = @r.grep('origin/HEAD', 1, 'master')
+    assert_equal 5, res.length
+
+    assert_equal 874, res.first.startline
+    assert_equal 'test/dot_git/file-index', res.first.filename
+    assert_equal 'test/dot_git/refs/remotes/origin/HEAD', res.first.content[1]
+
+    assert_equal 0, res[1].startline
+    assert_equal 'test/dot_git/index', res[1].filename
+    assert_equal [], res[1].content
+
+    assert_equal 5, res[3].startline
+    assert_equal 'test/dot_git_iv2/info/refs', res[3].filename
+    assert_equal "ca8a30f5a7f0f163bbe3b6f0abf18a6c83b0687a\trefs/remotes/origin/HEAD", res[3].content[1]
+  end
 end
