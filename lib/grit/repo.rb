@@ -600,9 +600,9 @@ module Grit
       open(filename, 'w') do |file|
         pipe_rd, pipe_wr = IO.pipe
         git_archive_pid = spawn(*git_archive_cmd, :out => pipe_wr)
+        pipe_wr.close
         compress_pid = spawn(*compress_cmd, :in => pipe_rd, :out => file)
         pipe_rd.close
-        pipe_wr.close
         Process.waitpid(git_archive_pid)
         Process.waitpid(compress_pid)
       end
