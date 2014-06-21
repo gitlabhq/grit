@@ -94,9 +94,17 @@ module Grit
     attr_accessor :git_dir, :bytes_read, :work_tree
 
     def initialize(git_dir)
-      self.git_dir    = git_dir
+      self.git_dir = get_git_directory(git_dir)
       self.work_tree  = git_dir.gsub(/\/\.git$/,'')
       self.bytes_read = 0
+    end
+
+    def get_git_directory(dir)
+      is_submodule?(dir) ? File.read(dir).chomp.slice('gitdir: '.length..-1) : dir
+    end
+
+    def is_submodule?(dir)
+      File.file?(dir)
     end
 
     def shell_escape(str)
