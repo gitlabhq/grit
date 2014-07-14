@@ -1,4 +1,5 @@
-#
+# --- encoding: utf-8 ---
+
 # converted from the gitrb project
 #
 # authors:
@@ -237,11 +238,13 @@ module Grit
   end
 
   class Commit < GitObject
-    attr_accessor :author, :committer, :tree, :parent, :message, :headers
+    extend Grit::Encode
+
+    attr_accessor :author, :committer, :tree, :parent, :message, :encoding, :headers
 
     def self.from_raw(rawobject, repository=nil)
       parent = []
-      tree = author = committer = nil
+      tree = author = committer = encoding = nil
 
       headers, message = rawobject.content.split(/\n\n/, 2)
       all_headers = headers.split(/\n/).map { |header| header.split(/ /, 2) }
@@ -255,6 +258,8 @@ module Grit
           author = UserInfo.new(value)
         when "committer"
           committer = UserInfo.new(value)
+        when "encoding"
+          encoding = value
         else
           warn "unknown header '%s' in commit %s" % \
             [key, rawobject.sha1.unpack("H*")[0]]
@@ -263,10 +268,10 @@ module Grit
       if not tree && author && committer
         raise RuntimeError, "incomplete raw commit object"
       end
-      new(tree, parent, author, committer, message, headers, repository)
+      new(tree, parent, author, committer, message, headers, repository, encoding)
     end
 
-    def initialize(tree, parent, author, committer, message, headers, repository=nil)
+    def initialize(tree, parent, author, committer, message, headers, repository=nil, encoding=nil)
       @tree = tree
       @author = author
       @parent = parent
@@ -274,6 +279,11 @@ module Grit
       @message = message
       @headers = headers
       @repository = repository
+      @encoding = encoding
+    end
+
+    def decoded_message
+      message_in_utf8(message, encoding)
     end
 
     def type
