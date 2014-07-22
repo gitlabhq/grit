@@ -26,10 +26,11 @@ module Grit
       # Everything output on the command's stderr as a String.
       attr_reader :err
 
-      def initialize(command, exitstatus=nil, err='')
+      def initialize(command, exitstatus=nil, out='', err='')
         if exitstatus
           @command = command
           @exitstatus = exitstatus
+          @out = out
           @err = err
           message = "Command failed [#{exitstatus}]: #{command}"
           message << "\n\n" << err unless err.nil? || err.empty?
@@ -344,7 +345,7 @@ module Grit
 
       status = process.status
       if raise_errors && !status.success?
-        raise CommandFailed.new(argv.join(' '), status.exitstatus, process.err)
+        raise CommandFailed.new(argv.join(' '), status.exitstatus, process.out, process.err)
       elsif process_info
         [status.exitstatus, process.out, process.err]
       else
