@@ -23,6 +23,9 @@ module Grit
       # The integer exit status.
       attr_reader :exitstatus
 
+      # Everything output on the command's stdout as a String.
+      attr_reader :out
+
       # Everything output on the command's stderr as a String.
       attr_reader :err
 
