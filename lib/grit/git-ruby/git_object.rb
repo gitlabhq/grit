@@ -28,8 +28,8 @@ module Grit
       m = /^(.*?) <(.*)> (\d+) ([+-])0*(\d+?)$/.match(str)
       if !m
         case str
-        when /<.+>/
-          m, @name, @email = *str.match(/(.*) <(.+?)>/)
+        when /<.*>/
+          m, @name, @email = *str.match(/(.*) <(.*?)>/)
         else
           @name = str
         end
