@@ -57,6 +57,10 @@ This documentation is accurate as of Grit 2.3.
 Easiest install is via RubyGems:
 
     $ gem install grit
+    
+Or add it to your Gemfile:
+
+    gem "gitlab-grit", require: "grit"
 
 
 ## Source
