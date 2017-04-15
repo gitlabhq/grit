@@ -54,3 +54,11 @@ class TestDiff < Test::Unit::TestCase
     assert                 diffs[4].new_file
   end
 end
+def test_list_from_quick_string
+    output = fixture('diff_quick')
+
+    diffs = Grit::Diff.list_from_quick_string(@r, output)
+    assert_equal 4,   diffs.size
+    assert_equal "lib/grit.rb", diffs.first.b_path
+    assert_equal "M", diffs.first.b_mode
+  end

@@ -23,6 +23,28 @@ module Grit
       @diff             = diff
     end
 
+    # Create an unbaked Diff containing just the specified attributes
+    #   +repo+ is the Repo
+    #   +atts+ is a Hash of instance variable data
+    #
+    # Returns Grit::Diff (unbaked)
+    def self.create(repo, atts)
+      self.allocate.create_initialize(repo, atts)
+    end
+
+    # Initializer for Diff.create
+    #   +repo+ is the Repo
+    #   +atts+ is a Hash of instance variable data
+    #
+    # Returns Grit::Diff (unbaked)
+    def create_initialize(repo, atts)
+      @repo = repo
+      atts.each do |k, v|
+        instance_variable_set("@#{k}", v)
+      end
+      self
+    end
+
     def self.list_from_string(repo, text)
       lines = text.split("\n")
 
@@ -70,6 +92,28 @@ module Grit
         diff = diff_lines.join("\n")
 
         diffs << Diff.new(repo, a_path, b_path, a_blob, b_blob, a_mode, b_mode, new_file, deleted_file, diff, renamed_file, sim_index)
+      end
+
+      diffs
+    end
+
+    def self.list_from_quick_string(repo, text)
+      lines = text.split("\n")
+
+      diffs = []
+
+      while !lines.empty?
+        parts        = lines.shift.split(/\t/)
+        path         = parts[1]
+        new_file     = false
+        deleted_file = false
+        case
+          when parts[0] == "A"
+            new_file = true
+          when parts[0] == "D"
+            deleted_file = true
+        end
+        diffs << Diff.create(repo, {:a_path => path, :b_path => path, :new_file => new_file, :deleted_file => deleted_file})
       end
 
       diffs
