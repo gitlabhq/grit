@@ -33,6 +33,7 @@ module Grit
         if exitstatus
           @command = command
           @exitstatus = exitstatus
+          @out = out
           @err = err
           @out = out
           message = "Command failed [#{exitstatus}]: #{command}"
