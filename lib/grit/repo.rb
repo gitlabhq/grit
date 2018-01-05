@@ -690,7 +690,7 @@ module Grit
       filematches.each do |filematch|
         binary = false
         file = ''
-        matches = filematch.split("--\n")
+        matches = filematch.split(/^--\n/)
         matches.each_with_index do |match, i|
           content = []
           startline = 0
