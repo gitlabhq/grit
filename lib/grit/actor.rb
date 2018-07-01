@@ -17,8 +17,8 @@ module Grit
     # Returns Git::Actor.
     def self.from_string(str)
       case str
-        when /<.+>/
-          m, name, email = *str.match(/(.*) <(.+?)>/)
+        when /<.*>/
+          m, name, email = *str.match(/(.*) <(.*?)>/)
           return self.new(name, email)
         else
           return self.new(str, nil)
